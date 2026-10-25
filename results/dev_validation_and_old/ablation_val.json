@@ -1,0 +1,193 @@
+{
+  "settings": {
+    "split": "val",
+    "final": "False",
+    "every": "1",
+    "limit": "0",
+    "seg_model": "C:\\Downloads\\All testings\\Testing 3\\runs\\seg_b2_native\\best",
+    "depth_model": "runs\\depth_s\\best.pt",
+    "max_depth": "80.0",
+    "min_vis": "2",
+    "min_box_px": "8",
+    "n_regions": "3",
+    "images": "C:\\Downloads\\All testings\\Testing 3\\dataset\\CAM_FRONT",
+    "boxes": "C:\\Downloads\\All testings\\Testing 3\\box_gt\\boxes.json",
+    "seg_dir": "C:\\Downloads\\All testings\\Testing 3\\seg_gt",
+    "meta_cache": "C:\\Downloads\\All testings\\Testing 3\\depth_gt\\meta_cache.json",
+    "out_dir": "C:\\Downloads\\All testings\\Testing 3\\results"
+  },
+  "frames": 356,
+  "baseline_always_most_common": 0.5056179775280899,
+  "results": [
+    {
+      "name": "REFERENCE: exp, lambda 0.05, default weights, max, alpha 0.4-1",
+      "group": "reference",
+      "acc": 0.8061797752808989,
+      "ci": [
+        0.7640449438202247,
+        0.8455056179775281
+      ],
+      "same_as_reference": 1.0
+    },
+    {
+      "name": "mean per region, alpha 0.4-1 (base paper rule)",
+      "group": "rule",
+      "acc": 0.4747191011235955,
+      "ci": [
+        0.42134831460674155,
+        0.5280898876404494
+      ],
+      "same_as_reference": 0.5561797752808989
+    },
+    {
+      "name": "mean per region, alpha flat",
+      "group": "rule",
+      "acc": 0.3792134831460674,
+      "ci": [
+        0.32865168539325845,
+        0.42696629213483145
+      ],
+      "same_as_reference": 0.46629213483146065
+    },
+    {
+      "name": "max per region, alpha 0.6-1 (fitted on val; used in demo)",
+      "group": "rule",
+      "acc": 0.8061797752808989,
+      "ci": [
+        0.7640449438202247,
+        0.8455056179775281
+      ],
+      "same_as_reference": 0.9775280898876404
+    },
+    {
+      "name": "max per region, alpha flat",
+      "group": "rule",
+      "acc": 0.6292134831460674,
+      "ci": [
+        0.5786516853932584,
+        0.6770365168539325
+      ],
+      "same_as_reference": 0.7584269662921348
+    },
+    {
+      "name": "linear attenuation 1 - d/80",
+      "group": "function",
+      "acc": 0.8651685393258427,
+      "ci": [
+        0.8286516853932584,
+        0.898876404494382
+      ],
+      "same_as_reference": 0.9410112359550562
+    },
+    {
+      "name": "inverse attenuation 1/d",
+      "group": "function",
+      "acc": 0.7134831460674157,
+      "ci": [
+        0.6657303370786517,
+        0.7612359550561798
+      ],
+      "same_as_reference": 0.9073033707865169
+    },
+    {
+      "name": "exponential, lambda 0.02",
+      "group": "lambda",
+      "acc": 0.8651685393258427,
+      "ci": [
+        0.8286516853932584,
+        0.898876404494382
+      ],
+      "same_as_reference": 0.9410112359550562
+    },
+    {
+      "name": "exponential, lambda 0.1",
+      "group": "lambda",
+      "acc": 0.6825842696629213,
+      "ci": [
+        0.6320224719101124,
+        0.7303370786516854
+      ],
+      "same_as_reference": 0.8651685393258427
+    },
+    {
+      "name": "exponential, lambda 0.25",
+      "group": "lambda",
+      "acc": 0.48314606741573035,
+      "ci": [
+        0.4297752808988764,
+        0.5365168539325843
+      ],
+      "same_as_reference": 0.5842696629213483
+    },
+    {
+      "name": "all risk classes weight 1.0",
+      "group": "weights",
+      "acc": 0.8230337078651685,
+      "ci": [
+        0.7808988764044944,
+        0.8595505617977528
+      ],
+      "same_as_reference": 0.9831460674157303
+    },
+    {
+      "name": "people 1.0, vehicles 0.5, two-wheelers 0.7",
+      "group": "weights",
+      "acc": 0.7556179775280899,
+      "ci": [
+        0.7106741573033708,
+        0.797752808988764
+      ],
+      "same_as_reference": 0.949438202247191
+    },
+    {
+      "name": "two-wheelers 1.0",
+      "group": "weights",
+      "acc": 0.8061797752808989,
+      "ci": [
+        0.7640449438202247,
+        0.8455056179775281
+      ],
+      "same_as_reference": 1.0
+    },
+    {
+      "name": "background weight 0 (objects only)",
+      "group": "weights",
+      "acc": 0.8623595505617978,
+      "ci": [
+        0.8258426966292135,
+        0.8960674157303371
+      ],
+      "same_as_reference": 0.9438202247191011
+    },
+    {
+      "name": "background weight 0.3",
+      "group": "weights",
+      "acc": 0.6151685393258427,
+      "ci": [
+        0.5617977528089888,
+        0.6629213483146067
+      ],
+      "same_as_reference": 0.7752808988764045
+    },
+    {
+      "name": "semantic only (class weight, no depth)",
+      "group": "component",
+      "acc": 0.8651685393258427,
+      "ci": [
+        0.8286516853932584,
+        0.898876404494382
+      ],
+      "same_as_reference": 0.9410112359550562
+    },
+    {
+      "name": "depth only (no class weight)",
+      "group": "component",
+      "acc": 0.5056179775280899,
+      "ci": [
+        0.45224719101123595,
+        0.5589887640449438
+      ],
+      "same_as_reference": 0.5870786516853933
+    }
+  ]
+}

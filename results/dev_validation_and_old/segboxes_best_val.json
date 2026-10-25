@@ -1,0 +1,121 @@
+{
+  "settings": {
+    "split": "val",
+    "final": "False",
+    "every": "1",
+    "limit": "0",
+    "seg_model": "runs\\seg_b2_native\\best",
+    "labels": "None",
+    "min_vis": "2",
+    "min_box_px": "8",
+    "images": "C:\\Downloads\\All testings\\Testing 3\\dataset\\CAM_FRONT",
+    "boxes": "C:\\Downloads\\All testings\\Testing 3\\box_gt\\boxes.json",
+    "seg_dir": "C:\\Downloads\\All testings\\Testing 3\\seg_gt",
+    "out_dir": "C:\\Downloads\\All testings\\Testing 3\\results"
+  },
+  "results": {
+    "all": {
+      "objects": 1512,
+      "found_10pct": 0.8564814814814815,
+      "found_30pct": 0.751984126984127,
+      "mean_coverage": 0.5266332075166716
+    },
+    "group: person": {
+      "objects": 574,
+      "found_10pct": 0.7857142857142857,
+      "found_30pct": 0.6533101045296167,
+      "mean_coverage": 0.42758430919468565
+    },
+    "group: vehicle": {
+      "objects": 833,
+      "found_10pct": 0.943577430972389,
+      "found_30pct": 0.8751500600240096,
+      "mean_coverage": 0.6340064637892147
+    },
+    "group: twowheel": {
+      "objects": 105,
+      "found_10pct": 0.5523809523809524,
+      "found_30pct": 0.3142857142857143,
+      "mean_coverage": 0.21627268524801893
+    },
+    "0-20 m": {
+      "objects": 420,
+      "found_10pct": 0.9,
+      "found_30pct": 0.7523809523809524,
+      "mean_coverage": 0.4877549498045225
+    },
+    "20-50 m": {
+      "objects": 893,
+      "found_10pct": 0.8533034714445689,
+      "found_30pct": 0.761478163493841,
+      "mean_coverage": 0.5494839533539311
+    },
+    "50-80 m": {
+      "objects": 199,
+      "found_10pct": 0.7788944723618091,
+      "found_30pct": 0.7085427135678392,
+      "mean_coverage": 0.5061465351871731
+    },
+    "person 0-20 m": {
+      "objects": 108,
+      "found_10pct": 0.8425925925925926,
+      "found_30pct": 0.6203703703703703,
+      "mean_coverage": 0.38004026255701945
+    },
+    "person 20-50 m": {
+      "objects": 416,
+      "found_10pct": 0.8004807692307693,
+      "found_30pct": 0.6899038461538461,
+      "mean_coverage": 0.4552392877480338
+    },
+    "person 50-80 m": {
+      "objects": 50,
+      "found_10pct": 0.54,
+      "found_30pct": 0.42,
+      "mean_coverage": 0.30019002836818837
+    },
+    "vehicle 0-20 m": {
+      "objects": 273,
+      "found_10pct": 0.9377289377289377,
+      "found_30pct": 0.8388278388278388,
+      "mean_coverage": 0.5509070401867163
+    },
+    "vehicle 20-50 m": {
+      "objects": 428,
+      "found_10pct": 0.9415887850467289,
+      "found_30pct": 0.8878504672897196,
+      "mean_coverage": 0.6827343383878302
+    },
+    "vehicle 50-80 m": {
+      "objects": 132,
+      "found_10pct": 0.9621212121212122,
+      "found_30pct": 0.9090909090909091,
+      "mean_coverage": 0.6478747389049313
+    },
+    "twowheel 0-20 m": {
+      "objects": 39,
+      "found_10pct": 0.7948717948717948,
+      "found_30pct": 0.5128205128205128,
+      "mean_coverage": 0.34397714335302004
+    },
+    "twowheel 20-50 m": {
+      "objects": 49,
+      "found_10pct": 0.5306122448979592,
+      "found_30pct": 0.2653061224489796,
+      "mean_coverage": 0.18570060840585942
+    },
+    "twowheel 50-80 m": {
+      "objects": 17,
+      "found_10pct": 0.058823529411764705,
+      "found_30pct": 0.0,
+      "mean_coverage": 0.01142314990512334
+    },
+    "city: singapore": {
+      "objects": 1512,
+      "found_10pct": 0.8564814814814815,
+      "found_30pct": 0.751984126984127,
+      "mean_coverage": 0.5266332075166716
+    }
+  },
+  "stray_fraction": 0.04397319425594453
+}

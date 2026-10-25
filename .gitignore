@@ -1,0 +1,24 @@
+# Environment and caches
+venv311/
+__pycache__/
+*.pyc
+
+# nuScenes data and generated labels (large, not redistributable)
+dataset/
+v1.0-trainval_meta/
+depth_gt/
+box_gt/
+seg_gt/
+seg_gt_native/
+splits*/
+cache/
+review/
+
+# Trained weights and demo videos (too large for GitHub; share separately)
+runs/
+demo_in/
+demo_out/
+
+# Misc
+_to_delete/
+*.docx

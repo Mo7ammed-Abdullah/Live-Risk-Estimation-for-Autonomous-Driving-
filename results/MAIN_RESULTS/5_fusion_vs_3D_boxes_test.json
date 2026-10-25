@@ -1,0 +1,423 @@
+{
+  "settings": {
+    "split": "test",
+    "final": "True",
+    "every": "1",
+    "limit": "0",
+    "seg_model": "runs\\seg_b2_native\\best",
+    "depth_model": "runs\\depth_s\\best.pt",
+    "lam_metric": "0.05",
+    "max_depth": "80.0",
+    "taus": "[0.1, 0.2, 0.3, 0.5]",
+    "pixel_tau": "0.2",
+    "min_vis": "2",
+    "min_box_px": "8",
+    "n_regions": "3",
+    "alphas": "None",
+    "weights": "None",
+    "background": "0.1",
+    "images": "C:\\Downloads\\All testings\\Testing 3\\dataset\\CAM_FRONT",
+    "boxes": "C:\\Downloads\\All testings\\Testing 3\\box_gt\\boxes.json",
+    "seg_dir": "C:\\Downloads\\All testings\\Testing 3\\seg_gt",
+    "meta_cache": "C:\\Downloads\\All testings\\Testing 3\\depth_gt\\meta_cache.json",
+    "out_dir": "C:\\Downloads\\All testings\\Testing 3\\results"
+  },
+  "objects": {
+    "all": {
+      "objects": 3947,
+      "MAE": 0.07501198703395194,
+      "pearson": 0.8243156902528425,
+      "spearman": 0.8043318265425338,
+      "class_correct": 0.8208766151507474,
+      "depth_AbsRel_at_object": 0.0917950844506484,
+      "depth_found": 0.9402077527235876,
+      "detection": {
+        "0.1": {
+          "true_risky": 2835,
+          "flagged": 0.9738977072310405,
+          "false_alarm_on_non_risky": 0.5179856115107914
+        },
+        "0.2": {
+          "true_risky": 1866,
+          "flagged": 0.9657020364415863,
+          "false_alarm_on_non_risky": 0.30562229697260934
+        },
+        "0.3": {
+          "true_risky": 1226,
+          "flagged": 0.9535073409461664,
+          "false_alarm_on_non_risky": 0.20249908122013965
+        },
+        "0.5": {
+          "true_risky": 558,
+          "flagged": 0.9336917562724014,
+          "false_alarm_on_non_risky": 0.04809678371200944
+        }
+      }
+    },
+    "0-20 m": {
+      "objects": 1122,
+      "MAE": 0.06227831101499309,
+      "pearson": 0.6729571414050617,
+      "spearman": 0.7694058982030845,
+      "class_correct": 0.9153297682709447,
+      "depth_AbsRel_at_object": 0.11573808338541977,
+      "depth_found": 0.8627450980392157,
+      "detection": {
+        "0.1": {
+          "true_risky": 1122,
+          "flagged": 0.9866310160427807,
+          "false_alarm_on_non_risky": NaN
+        },
+        "0.2": {
+          "true_risky": 1122,
+          "flagged": 0.983957219251337,
+          "false_alarm_on_non_risky": NaN
+        },
+        "0.3": {
+          "true_risky": 1110,
+          "flagged": 0.9648648648648649,
+          "false_alarm_on_non_risky": 0.5
+        },
+        "0.5": {
+          "true_risky": 558,
+          "flagged": 0.9336917562724014,
+          "false_alarm_on_non_risky": 0.1400709219858156
+        }
+      }
+    },
+    "20-50 m": {
+      "objects": 2129,
+      "MAE": 0.08021341513016907,
+      "pearson": 0.46261590822682963,
+      "spearman": 0.5360756638916337,
+      "class_correct": 0.8257397839361202,
+      "depth_AbsRel_at_object": 0.07870577192655089,
+      "depth_found": 0.9830906528886801,
+      "detection": {
+        "0.1": {
+          "true_risky": 1713,
+          "flagged": 0.9655575014594279,
+          "false_alarm_on_non_risky": 0.7115384615384616
+        },
+        "0.2": {
+          "true_risky": 744,
+          "flagged": 0.9381720430107527,
+          "false_alarm_on_non_risky": 0.376173285198556
+        },
+        "0.3": {
+          "true_risky": 116,
+          "flagged": 0.8448275862068966,
+          "false_alarm_on_non_risky": 0.24838549428713363
+        }
+      }
+    },
+    "50-80 m": {
+      "objects": 696,
+      "MAE": 0.0796288607069772,
+      "pearson": 0.15322181893600634,
+      "spearman": 0.22043211025598955,
+      "class_correct": 0.6537356321839081,
+      "depth_AbsRel_at_object": 0.10653582506659101,
+      "depth_found": 0.9339080459770115,
+      "detection": {}
+    },
+    "class: person": {
+      "objects": 1043,
+      "MAE": 0.05541236737053107,
+      "pearson": 0.7946149010126867,
+      "spearman": 0.8276721277603901,
+      "class_correct": 0.8235858101629914,
+      "depth_AbsRel_at_object": 0.10102840014078232,
+      "depth_found": 0.9367209971236817,
+      "detection": {
+        "0.1": {
+          "true_risky": 807,
+          "flagged": 0.9343246592317225,
+          "false_alarm_on_non_risky": 0.3008474576271186
+        },
+        "0.2": {
+          "true_risky": 497,
+          "flagged": 0.9295774647887324,
+          "false_alarm_on_non_risky": 0.19597069597069597
+        },
+        "0.3": {
+          "true_risky": 265,
+          "flagged": 0.9018867924528302,
+          "false_alarm_on_non_risky": 0.13881748071979436
+        },
+        "0.5": {
+          "true_risky": 63,
+          "flagged": 0.7777777777777778,
+          "false_alarm_on_non_risky": 0.025510204081632654
+        }
+      }
+    },
+    "class: rider": null,
+    "class: car": {
+      "objects": 2012,
+      "MAE": 0.06837217051905001,
+      "pearson": 0.8747096149841286,
+      "spearman": 0.8604022432239797,
+      "class_correct": 0.9736580516898609,
+      "depth_AbsRel_at_object": 0.07910846099210225,
+      "depth_found": 0.9607355864811133,
+      "detection": {
+        "0.1": {
+          "true_risky": 1503,
+          "flagged": 0.9880239520958084,
+          "false_alarm_on_non_risky": 0.5284872298624754
+        },
+        "0.2": {
+          "true_risky": 1007,
+          "flagged": 0.9771598808341608,
+          "false_alarm_on_non_risky": 0.3054726368159204
+        },
+        "0.3": {
+          "true_risky": 697,
+          "flagged": 0.9727403156384505,
+          "false_alarm_on_non_risky": 0.20836501901140683
+        },
+        "0.5": {
+          "true_risky": 382,
+          "flagged": 0.981675392670157,
+          "false_alarm_on_non_risky": 0.04723926380368098
+        }
+      }
+    },
+    "class: truck": {
+      "objects": 658,
+      "MAE": 0.11784469352390865,
+      "pearson": 0.7829185620986759,
+      "spearman": 0.7575180739978715,
+      "class_correct": 0.44680851063829785,
+      "depth_AbsRel_at_object": 0.12898128808950407,
+      "depth_found": 0.8693009118541033,
+      "detection": {
+        "0.1": {
+          "true_risky": 376,
+          "flagged": 1.0,
+          "false_alarm_on_non_risky": 0.6524822695035462
+        },
+        "0.2": {
+          "true_risky": 265,
+          "flagged": 0.9924528301886792,
+          "false_alarm_on_non_risky": 0.455470737913486
+        },
+        "0.3": {
+          "true_risky": 209,
+          "flagged": 0.9665071770334929,
+          "false_alarm_on_non_risky": 0.28507795100222716
+        },
+        "0.5": {
+          "true_risky": 98,
+          "flagged": 0.8469387755102041,
+          "false_alarm_on_non_risky": 0.05892857142857143
+        }
+      }
+    },
+    "class: bus": {
+      "objects": 78,
+      "MAE": 0.16078323721098609,
+      "pearson": 0.4475878307481136,
+      "spearman": 0.6092262168211535,
+      "class_correct": 0.6025641025641025,
+      "depth_AbsRel_at_object": 0.11357103660969546,
+      "depth_found": 0.9871794871794872,
+      "detection": {
+        "0.1": {
+          "true_risky": 31,
+          "flagged": 1.0,
+          "false_alarm_on_non_risky": 0.723404255319149
+        },
+        "0.2": {
+          "true_risky": 16,
+          "flagged": 1.0,
+          "false_alarm_on_non_risky": 0.41935483870967744
+        },
+        "0.3": {
+          "true_risky": 11,
+          "flagged": 0.8181818181818182,
+          "false_alarm_on_non_risky": 0.31343283582089554
+        },
+        "0.5": {
+          "true_risky": 3,
+          "flagged": 1.0,
+          "false_alarm_on_non_risky": 0.2
+        }
+      }
+    },
+    "class: motorcycle": {
+      "objects": 43,
+      "MAE": 0.046652746792034606,
+      "pearson": 0.8750052126538077,
+      "spearman": 0.66384778012685,
+      "class_correct": 0.46511627906976744,
+      "depth_AbsRel_at_object": 0.17828314320878835,
+      "depth_found": 0.9069767441860465,
+      "detection": {
+        "0.1": {
+          "true_risky": 26,
+          "flagged": 0.8846153846153846,
+          "false_alarm_on_non_risky": 0.4117647058823529
+        },
+        "0.2": {
+          "true_risky": 12,
+          "flagged": 0.75,
+          "false_alarm_on_non_risky": 0.0967741935483871
+        },
+        "0.3": {
+          "true_risky": 6,
+          "flagged": 0.8333333333333334,
+          "false_alarm_on_non_risky": 0.0
+        },
+        "0.5": {
+          "true_risky": 3,
+          "flagged": 1.0,
+          "false_alarm_on_non_risky": 0.0
+        }
+      }
+    },
+    "class: bicycle": {
+      "objects": 113,
+      "MAE": 0.07631360723866784,
+      "pearson": 0.8200736956055388,
+      "spearman": 0.8241898995275801,
+      "class_correct": 0.5398230088495575,
+      "depth_AbsRel_at_object": 0.09983772153053537,
+      "depth_found": 1.0,
+      "detection": {
+        "0.1": {
+          "true_risky": 92,
+          "flagged": 1.0,
+          "false_alarm_on_non_risky": 0.5238095238095238
+        },
+        "0.2": {
+          "true_risky": 69,
+          "flagged": 0.9855072463768116,
+          "false_alarm_on_non_risky": 0.3181818181818182
+        },
+        "0.3": {
+          "true_risky": 38,
+          "flagged": 0.9473684210526315,
+          "false_alarm_on_non_risky": 0.26666666666666666
+        },
+        "0.5": {
+          "true_risky": 9,
+          "flagged": 0.8888888888888888,
+          "false_alarm_on_non_risky": 0.125
+        }
+      }
+    },
+    "city: boston": {
+      "objects": 2775,
+      "MAE": 0.07056335324158475,
+      "pearson": 0.8527215851197191,
+      "spearman": 0.836730291790183,
+      "class_correct": 0.8526126126126126,
+      "depth_AbsRel_at_object": 0.08802161167405917,
+      "depth_found": 0.9394594594594594,
+      "detection": {
+        "0.1": {
+          "true_risky": 2014,
+          "flagged": 0.9821251241310824,
+          "false_alarm_on_non_risky": 0.48751642575558474
+        },
+        "0.2": {
+          "true_risky": 1346,
+          "flagged": 0.9739970282317979,
+          "false_alarm_on_non_risky": 0.2960111966410077
+        },
+        "0.3": {
+          "true_risky": 900,
+          "flagged": 0.9533333333333334,
+          "false_alarm_on_non_risky": 0.1952
+        },
+        "0.5": {
+          "true_risky": 389,
+          "flagged": 0.9305912596401028,
+          "false_alarm_on_non_risky": 0.04316848281642917
+        }
+      }
+    },
+    "city: singapore": {
+      "objects": 1172,
+      "MAE": 0.08554522830854151,
+      "pearson": 0.7641852647168298,
+      "spearman": 0.7322210245291592,
+      "class_correct": 0.7457337883959044,
+      "depth_AbsRel_at_object": 0.10538503804731966,
+      "depth_found": 0.9419795221843004,
+      "detection": {
+        "0.1": {
+          "true_risky": 821,
+          "flagged": 0.953714981729598,
+          "false_alarm_on_non_risky": 0.584045584045584
+        },
+        "0.2": {
+          "true_risky": 520,
+          "flagged": 0.9442307692307692,
+          "false_alarm_on_non_risky": 0.3266871165644172
+        },
+        "0.3": {
+          "true_risky": 326,
+          "flagged": 0.9539877300613497,
+          "false_alarm_on_non_risky": 0.2186761229314421
+        },
+        "0.5": {
+          "true_risky": 169,
+          "flagged": 0.9408284023668639,
+          "false_alarm_on_non_risky": 0.05982053838484546
+        }
+      }
+    }
+  },
+  "pixel_precision": 0.9697223898552974,
+  "decision": {
+    "paper rule (mean per region)": {
+      "agreement": 0.6613372093023255,
+      "confusion": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          213
+        ],
+        [
+          0,
+          20,
+          454
+        ]
+      ]
+    },
+    "max per region": {
+      "agreement": 0.8968023255813954,
+      "confusion": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          3,
+          176,
+          35
+        ],
+        [
+          0,
+          33,
+          441
+        ]
+      ]
+    }
+  },
+  "baseline_always_most_common": 0.688953488372093,
+  "true_region_counts": [
+    0,
+    214,
+    474
+  ]
+}
