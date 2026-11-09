@@ -79,6 +79,35 @@ def class_loss_weights(pixels, power, max_weight=10.0):
     return w / max((w * freq).sum(), 1e-8)
 
 
+def class_balanced_weights(pixels, beta, max_weight=10.0):
+    """Class-balanced weights (Cui et al. 2019): weight = 1 / effective number of pixels of the class,
+    effective number = (1 - beta^n) / (1 - beta). beta close to 1 (e.g. 0.9999999) because classes have millions of pixels.
+    Rescaled so the pixel-weighted mean is 1, capped at max_weight."""
+    n = np.maximum(pixels.astype(np.float64), 1.0)
+    eff = (1.0 - np.power(beta, n)) / (1.0 - beta)
+    w = np.minimum(1.0 / np.maximum(eff, 1e-12), np.inf)
+    freq = n / n.sum()
+    w = w / max((w * freq).sum(), 1e-12)
+    return np.minimum(w, max_weight)
+
+
+def seg_loss(logits, masks, class_w=None, kind="ce", gamma=2.0, ignore_index=IGNORE):
+    """Pixel loss. kind = 'ce' (cross-entropy, the original) or 'focal' (Lin et al. 2017): the cross-entropy of each pixel is
+    multiplied by (1 - p_correct)^gamma, so easy pixels (road, sky) count little and hard pixels (small, rare objects) count more.
+    class_w (optional) multiplies each pixel by the weight of its true class. Pixels with the ignore label are skipped."""
+    import torch
+    import torch.nn.functional as F
+    if kind == "ce":
+        return F.cross_entropy(logits, masks, weight=class_w, ignore_index=ignore_index)
+    valid = masks != ignore_index
+    safe = torch.where(valid, masks, torch.zeros_like(masks))
+    ce = F.cross_entropy(logits, safe, reduction="none")
+    p_correct = torch.exp(-ce)
+    loss = ((1.0 - p_correct) ** gamma) * ce
+    w = valid.float() if class_w is None else class_w[safe] * valid.float()
+    return (loss * w).sum() / w.sum().clamp(min=1e-8)
+
+
 # ----------------------------------------------------------------------------
 # Dataset (returns numpy arrays; the DataLoader turns them into tensors)
 # ----------------------------------------------------------------------------
@@ -195,6 +224,9 @@ def parse_args():
     ap.add_argument("--rare_crop_prob", type=float, default=0.5)
     ap.add_argument("--rfs_t", type=float, default=0.3, help="repeat-factor sampling threshold (0 = off)")
     ap.add_argument("--class_weight_power", type=float, default=0.0, help="loss class weights = inverse freq^power (0 = off)")
+    ap.add_argument("--loss", default="ce", choices=["ce", "focal"], help="pixel loss: ce = cross-entropy (original), focal = focal loss")
+    ap.add_argument("--focal_gamma", type=float, default=2.0, help="focal loss focusing strength (0 = same as cross-entropy)")
+    ap.add_argument("--cb_beta", type=float, default=0.0, help="class-balanced loss weights with this beta (0 = off, try 0.9999999); overrides --class_weight_power")
     ap.add_argument("--eval_every", type=int, default=2)
     ap.add_argument("--eval_batch", type=int, default=1)
     ap.add_argument("--select", default="miou", choices=["miou", "risk_miou"], help="metric used to pick the best epoch")
@@ -254,7 +286,10 @@ def main():
         sampler = WeightedRandomSampler(torch.as_tensor(w, dtype=torch.double), num_samples=len(train_ds), replacement=True)
         shuffle = False
     class_w = None
-    if presence is not None and args.class_weight_power > 0:
+    if presence is not None and args.cb_beta > 0:
+        class_w = torch.tensor(class_balanced_weights(pixels, args.cb_beta), dtype=torch.float32, device=device)
+        print(f"Class-balanced loss weights (beta {args.cb_beta}):", {nm: round(float(x), 2) for nm, x in zip(names, class_w.cpu())})
+    elif presence is not None and args.class_weight_power > 0:
         class_w = torch.tensor(class_loss_weights(pixels.astype(np.float64), args.class_weight_power),
                                dtype=torch.float32, device=device)
         print("Loss class weights:", {nm: round(float(x), 2) for nm, x in zip(names, class_w.cpu())})
@@ -333,7 +368,7 @@ def main():
                 with torch.autocast("cuda", dtype=torch.float16, enabled=use_amp):
                     logits = model(pixel_values=imgs).logits
                 logits = F.interpolate(logits.float(), size=masks.shape[-2:], mode="bilinear", align_corners=False)
-                loss = F.cross_entropy(logits, masks, weight=class_w, ignore_index=IGNORE)
+                loss = seg_loss(logits, masks, class_w, args.loss, args.focal_gamma)
                 # Gradient accumulation: gradients of several small batches are added before one optimiser step.
                 scaler.scale(loss / args.grad_accum).backward()
             except torch.cuda.OutOfMemoryError:

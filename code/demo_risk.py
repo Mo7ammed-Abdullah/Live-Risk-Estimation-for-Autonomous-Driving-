@@ -29,6 +29,7 @@ import evalkit as ek
 import risk as rk
 from eval_depth import load_depth_model, run_depth
 from generate_seg_gt import load_labeler, make_color_table, predict_with_retry
+from ttc_tracker import TTCTracker, draw_tracks
 
 HERE = Path(__file__).resolve().parent.parent  # project root (this file lives in code/)
 IMAGE_EXTS = {".jpg", ".jpeg", ".png"}
@@ -102,7 +103,8 @@ def _txt(img, s, org, scale=0.8, color=(255, 255, 255), th=2):
 #   top right = segmentation
 #   bottom left = depth map (red = near)
 #   bottom right = decision panel (most urgent region, risk level, bars, FPS).
-def make_panel(rgb, seg, depth, risk_map, urgency, best, bands, names, color_table, text, max_depth, tile_w=800, zone_names=None, fps=0.0):
+def make_panel(rgb, seg, depth, risk_map, urgency, best, bands, names, color_table, text, max_depth, tile_w=800, zone_names=None, fps=0.0,
+               tracks=None, clean=False):
     """2x2 layout: [camera + risk overlay + regions | segmentation] / [depth | decision panel]."""
     import cv2
     H, W = rgb.shape[:2]
@@ -125,14 +127,16 @@ def make_panel(rgb, seg, depth, risk_map, urgency, best, bands, names, color_tab
     # Resize every tile to the same size.
     def fit(arr):
         return cv2.resize(arr, (tile_w, tile_h), interpolation=cv2.INTER_AREA)
-    t_risk, t_seg, t_depth = fit(risk_vis), fit(seg_vis), fit(depth_vis)
-    cols = [(90, 90, 90)] * len(bands)
-    for i, (r0, r1) in enumerate(bands):
-        if i > 0:
-            cv2.line(t_risk, (0, int(r0 * k)), (tile_w, int(r0 * k)), (255, 255, 255), 1)
-    # Green frame around the most urgent region.
-    r0, r1 = bands[best]
-    cv2.rectangle(t_risk, (3, int(r0 * k) + 3), (tile_w - 4, int(r1 * k) - 3), (0, 255, 0), 3)
+    # clean = plain camera picture in the top-left tile (no risk colours, region lines or labels); the decision
+    # panel and the depth tile still show everything.
+    t_risk, t_seg, t_depth = fit(rgb if clean else risk_vis), fit(seg_vis), fit(depth_vis)
+    if not clean:
+        for i, (r0, r1) in enumerate(bands):
+            if i > 0:
+                cv2.line(t_risk, (0, int(r0 * k)), (tile_w, int(r0 * k)), (255, 255, 255), 1)
+        # Green frame around the most urgent region.
+        r0, r1 = bands[best]
+        cv2.rectangle(t_risk, (3, int(r0 * k) + 3), (tile_w - 4, int(r1 * k) - 3), (0, 255, 0), 3)
     # numbers on screen: per region risk + distance (m) of the most dangerous pixel, marked on both tiles
     # For each region: find the pixel with the highest risk, mark it on the risk and depth tiles with its distance in meters.
     # If the region's maximum risk is below 0.15 it is shown as 'clear'.
@@ -143,13 +147,17 @@ def make_panel(rgb, seg, depth, risk_map, urgency, best, bands, names, color_tab
         yy, xx = np.unravel_index(int(np.argmax(sub)), sub.shape)
         dist = float(depth[b0 + yy, xx])
         px, py = int(xx * tile_w / W), int((b0 + yy) * k)
-        for tile in ((t_risk, t_depth) if float(sub.max()) > 0.15 else ()):
+        for tile in (((t_depth,) if clean else (t_risk, t_depth)) if float(sub.max()) > 0.15 else ()):
             cv2.circle(tile, (px, py), 9, (255, 255, 255), 2)
             cv2.circle(tile, (px, py), 3, (0, 255, 0) if i == best else (255, 255, 255), -1)
             _txt(tile, f"{dist:.1f} m", (min(px + 12, tile_w - 110), max(py - 8, 50)), 0.8, (255, 255, 0), 2)
-        _txt(t_risk, f"{zone_names[i]}: U={urgency[i]:.2f}" + (f"  {dist:.0f} m" if float(sub.max()) > 0.15 else "  clear"), (10, int(b0 * k) + 60 if i else 64), 0.8,
-             (0, 255, 0) if i == best else (255, 255, 255), 2)
-    _txt(t_risk, "CAMERA + RISK (bright = dangerous)", (10, 28))
+        if not clean:
+            _txt(t_risk, f"{zone_names[i]}: U={urgency[i]:.2f}" + (f"  {dist:.0f} m" if float(sub.max()) > 0.15 else "  clear"), (10, int(b0 * k) + 60 if i else 64), 0.8,
+                 (0, 255, 0) if i == best else (255, 255, 255), 2)
+    # Objects with their time-to-collision (only with --ttc): red < 2 s, orange < 4 s, grey = not approaching / too new.
+    if tracks is not None:
+        draw_tracks(t_risk, tracks, k)
+    _txt(t_risk, ("CAMERA" if clean else "CAMERA + RISK (bright = dangerous)") + ("  + TTC per object" if tracks is not None else ""), (10, 28))
     _txt(t_seg, "SEGMENTATION (SegFormer)", (10, 28))
     _txt(t_depth, f"DEPTH (UniDepthV2)  red = near   {lo:.0f}-{hi:.0f} m", (10, 28))
 
@@ -172,7 +180,15 @@ def make_panel(rgb, seg, depth, risk_map, urgency, best, bands, names, color_tab
         cv2.rectangle(t_dec, (bar_x + 90, y), (bar_x + 90 + int((bar_w - 90) * min(u, 1.0)), y + 34), c, -1)
         _txt(t_dec, f"{u:.2f}", (bar_x + 100, y + 25), 0.7)
         y += 55
-    _txt(t_dec, f"{fps:.1f} FPS  seg+depth+risk", (20, tile_h - 20), 0.7, (200, 200, 200), 1)
+    if tracks is not None:
+        with_ttc = [o for o in tracks if o["ttc"] is not None]
+        if with_ttc:
+            o = min(with_ttc, key=lambda o: o["ttc"])
+            c = (230, 60, 60) if o["ttc"] < 2 else ((240, 170, 40) if o["ttc"] < 4 else (200, 200, 200))
+            _txt(t_dec, f"shortest TTC: {o['kind']} {o['ttc']:.1f} s ({o['depth']:.0f} m)", (20, y + 30), 0.8, c, 2)
+        else:
+            _txt(t_dec, "shortest TTC: nothing approaching", (20, y + 30), 0.8, (200, 200, 200), 2)
+    _txt(t_dec, f"{fps:.1f} FPS  seg+depth+risk" + ("+TTC" if tracks is not None else ""), (20, tile_h - 20), 0.7, (200, 200, 200), 1)
 
     # Join the four tiles into the 2 x 2 picture.
     top = np.concatenate([t_risk, t_seg], axis=1)
@@ -264,6 +280,9 @@ def parse_args():
     ap.add_argument("--crop_top", type=float, default=0.0, help="cut this fraction off the top (mirror, windshield frame)")
     ap.add_argument("--max_panel_h", type=int, default=980, help="shrink the picture so it fits your screen")
     ap.add_argument("--crop_bottom", type=float, default=0.0, help="cut this fraction off the bottom (own car hood/dashboard), e.g. 0.2")
+    ap.add_argument("--clean_camera", action="store_true", help="top-left tile = plain camera (no risk colours / region boxes)")
+    ap.add_argument("--ttc", action="store_true", help="also find and follow objects and show their time-to-collision (ttc_tracker.py)")
+    ap.add_argument("--src_fps", type=float, default=0.0, help="frame rate of the input video (0 = read it from the file)")
     return ap.parse_args()
 
 
@@ -295,6 +314,15 @@ def main():
     # One timer per stage; the first 3 frames (warm-up) are ignored in the averages.
     t_seg, t_depth, t_risk, t_all = ek.Timer(3), ek.Timer(3), ek.Timer(3), ek.Timer(3)
     rows, writer, warned = [], None, False
+    # Time-to-collision: the tracker needs the real time of every frame.
+    tracker = TTCTracker(names) if args.ttc else None
+    track_rows, last_t = [], None
+    src_fps = args.src_fps
+    if args.ttc and not src_fps and Path(args.input).suffix.lower() in VIDEO_EXTS:
+        import cv2
+        cap = cv2.VideoCapture(str(args.input)); src_fps = cap.get(cv2.CAP_PROP_FPS) or 30.0; cap.release()
+    if args.ttc:
+        print(f"TTC on: frame times from {'the video at ' + format(src_fps, '.1f') + ' FPS' if src_fps else 'the file names (nuScenes timestamps)'}")
 
     # MAIN LOOP: for every frame -> segmentation -> depth -> risk map -> region decision -> picture.
     for i, (stem, img) in enumerate(tqdm(iter_frames(args.input, args.log, args.every, args.limit), desc="frames")):
@@ -340,6 +368,23 @@ def main():
                 risk_map, args.n_regions, args.alphas if args.alphas is not None else rk.fitted_alphas(args.n_regions), rk.FITTED_P)
         else:
             urgency, best, bands = rk.region_urgency(risk_map, args.n_regions, args.alphas)
+        # Time-to-collision per object (finds objects in seg, follows them, uses the depth/size change over time).
+        tracks = None
+        if tracker is not None:
+            if stem.startswith("frame") and src_fps:
+                t_now = int(stem[5:]) / src_fps                     # video: frame index / frames per second
+            elif "__" in stem:
+                t_now = int(stem.split("__")[-1]) / 1e6               # nuScenes: microsecond timestamp in the name
+            else:
+                t_now = i * 0.5
+            if last_t is not None and (t_now < last_t or t_now - last_t > 1.0):
+                tracker.reset()                                      # new drive or a jump in time
+            last_t = t_now
+            tracks = tracker.update(seg, depth, t_now)
+            for o in tracks:
+                track_rows.append([i, stem, o["id"], o["kind"], round(o["depth"], 2),
+                                   None if o["closing"] is None else round(o["closing"], 2),
+                                   None if o["ttc"] is None else round(o["ttc"], 2)] + [round(v, 1) for v in o["box"]])
         t3 = time.time()
         t_seg.add(t1 - t0); t_depth.add(t2 - t1); t_risk.add(t3 - t2); t_all.add(t3 - t0)
 
@@ -351,7 +396,8 @@ def main():
                 f"total {1000 * (t3 - t0):.0f} ms ({1 / (t3 - t0):.1f} FPS)   |   depth mode: {args.depth_mode}")
         # Draw the picture, shrunk if it is taller than --max_panel_h so it fits the screen.
         panel = make_panel(rgb, seg, depth, risk_map, urgency, best, bands, names, color_table, text, args.max_depth,
-                           zone_names=zone_names, fps=1.0 / max(t3 - t0, 1e-6))
+                           zone_names=zone_names, fps=1.0 / max(t3 - t0, 1e-6), tracks=tracks,
+                           clean=args.clean_camera)
         if panel.shape[0] > args.max_panel_h:
             import cv2
             s = args.max_panel_h / panel.shape[0]
@@ -373,8 +419,11 @@ def main():
                                          (panel.shape[1], panel.shape[0]))
             writer.write(cv2.cvtColor(panel, cv2.COLOR_RGB2BGR))
         # One CSV row per frame: risk values, most urgent region, urgency per region and the time of each stage.
+        ttcs = [o for o in (tracks or []) if o["ttc"] is not None]
+        short = min(ttcs, key=lambda o: o["ttc"]) if ttcs else None
         rows.append([i, stem, mean_r, max_r, best] + [float(u) for u in urgency] +
-                    [1000 * (t1 - t0), 1000 * (t2 - t1), 1000 * (t3 - t2), 1000 * (t3 - t0)])
+                    [1000 * (t1 - t0), 1000 * (t2 - t1), 1000 * (t3 - t2), 1000 * (t3 - t0)] +
+                    ([None, None] if short is None else [round(short["ttc"], 2), short["kind"]]))
 
     if writer is not None:
         writer.release()
@@ -384,12 +433,18 @@ def main():
     with open(args.out / "risk_per_frame.csv", "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["index", "frame", "mean_risk", "max_risk", "most_urgent_region"] +
-                   [f"U_{n}" for n in zone_names] + ["seg_ms", "depth_ms", "risk_ms", "total_ms"])
+                   [f"U_{n}" for n in zone_names] + ["seg_ms", "depth_ms", "risk_ms", "total_ms", "shortest_ttc_s", "shortest_ttc_kind"])
         w.writerows(rows)
+    if tracker is not None:
+        with open(args.out / "ttc_per_object.csv", "w", newline="") as f:
+            w = csv.writer(f)
+            w.writerow(["index", "frame", "track_id", "kind", "depth_m", "closing_m_s", "ttc_s", "x0", "y0", "x1", "y1"])
+            w.writerows(track_rows)
+        print(f"TTC per object: {args.out / 'ttc_per_object.csv'}")
 
     print(f"\nProcessed {len(rows)} frames. Pictures: {frame_dir}   CSV: {args.out / 'risk_per_frame.csv'}"
           + (f"   Video: {args.out / 'demo.mp4'}" if args.video else ""))
-    for name, t in (("segmentation", t_seg), ("depth", t_depth), ("risk formula", t_risk), ("whole pipeline", t_all)):
+    for name, t in (("segmentation", t_seg), ("depth", t_depth), ("risk" + (" + TTC" if args.ttc else " formula"), t_risk), ("whole pipeline", t_all)):
         s = t.summary()
         if s:
             print(f"  {name:<15s} {s['mean_ms']:7.1f} ± {s['std_ms']:5.1f} ms   p95 {s['p95_ms']:7.1f} ms")

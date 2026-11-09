@@ -119,12 +119,20 @@ def sample_at(depth_map, ys, xs, padded_hw, pad_lt):
 
 
 # Loss = scale-invariant log error (silog) + relative error, both weighted. It is computed only at LiDAR pixels.
-def depth_loss(pred, gt, w_silog, w_rel, lam=0.85):
+def depth_loss(pred, gt, w_silog, w_rel, lam=0.85, far_weight=1.0, far_power=1.0, max_depth=80.0):
+    """Training loss at the LiDAR pixels: scale-invariant log error (silog) + relative error.
+    Distance weighting: each pixel gets weight 1 + (far_weight - 1) * (true depth / max_depth)^far_power,
+    so a pixel at 0 m counts 1 and a pixel at max_depth counts far_weight times. far_weight = 1 gives the original, unweighted loss.
+    Returns (loss, plain relative error for logging)."""
     pred = pred.clamp(min=1e-3)
     d = torch.log(pred) - torch.log(gt)
-    silog = torch.sqrt((d ** 2).mean() - lam * d.mean() ** 2 + 1e-8)
-    rel = ((pred - gt).abs() / gt).mean()
-    return w_silog * silog + w_rel * rel, float(rel)
+    rel_each = (pred - gt).abs() / gt
+    w = 1.0 + (far_weight - 1.0) * (gt / max_depth).clamp(0, 1) ** far_power
+    w_sum = w.sum()
+    d_mean = (w * d).sum() / w_sum
+    silog = torch.sqrt((w * d ** 2).sum() / w_sum - lam * d_mean ** 2 + 1e-8)
+    rel = (w * rel_each).sum() / w_sum
+    return w_silog * silog + w_rel * rel, float(rel_each.mean())
 
 
 @torch.no_grad()
@@ -163,6 +171,8 @@ def main():
     ap.add_argument("--freeze_encoder", action="store_true")
     ap.add_argument("--w_silog", type=float, default=10.0)
     ap.add_argument("--w_rel", type=float, default=10.0)
+    ap.add_argument("--far_weight", type=float, default=1.0, help="loss weight of a pixel at max_depth relative to a pixel at 0 m (1 = off; try 3)")
+    ap.add_argument("--far_power", type=float, default=1.0, help="shape of the distance weighting (1 = linear in distance, 2 = stronger focus on the far range)")
     ap.add_argument("--max_points", type=int, default=6000, help="LiDAR pixels used per image in the loss")
     ap.add_argument("--max_depth", type=float, default=80.0)
     ap.add_argument("--train_pixels", type=int, default=0, help="cap the training resolution (pixels); 0 = model default")
@@ -258,7 +268,7 @@ def main():
             try:
                 depth_map, padded_hw, pad_lt = forward_depth(model, rgb, K, device, train_aug=True, fp16=not args.fp32)
                 pred = sample_at(depth_map, ys, xs, padded_hw, pad_lt)
-                loss, rel = depth_loss(pred, gt, args.w_silog, args.w_rel)
+                loss, rel = depth_loss(pred, gt, args.w_silog, args.w_rel, far_weight=args.far_weight, far_power=args.far_power, max_depth=args.max_depth)
                 # Safety: a non-finite loss is skipped instead of breaking the weights.
                 if not torch.isfinite(loss):
                     print(f"\nnon-finite loss on {stem}, skipping")

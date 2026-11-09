@@ -3,14 +3,14 @@ Run the risk demo on one video. Edit the settings below, save, then run:
 
     python run.py
 
-(venv311 active, from the "Testing 3" folder.)  Output goes to demo_out\ (demo.mp4 + risk_per_frame.csv).
+(venv311 active, from the project folder.)  Output goes to demo_out/ (demo.mp4 + risk_per_frame.csv, and ttc_per_object.csv when SHOW_TTC is on).
 """
 import subprocess
 import sys
 from pathlib import Path
 
 # ===================== EDIT THESE =====================
-VIDEO_PATH = r"C:\Downloads\All testings\Testing 3\demo_in\driving.mp4"   # <- put your video path here
+VIDEO_PATH = r"C:\Downloads\All testings\Testing 3\risk estimation for autonomous driving (Segformer+Unidepth)\demo_in\driving.mp4"   # <- put your video path here
 CROP_TOP = 0.0        # fraction to cut from the top, 0 to 0.5 (e.g. 0.1 = top 10%)
 CROP_BOTTOM = 0.0     # fraction to cut from the bottom (e.g. 0.2 = bottom 20%, hides your own dashboard/hood)
 RESIZE_HEIGHT = 320   # smaller = faster (320 gives ~14 FPS)
@@ -19,6 +19,8 @@ VIDEO_FPS = 10        # saved video speed = video FPS / EVERY (60 / 6 = 10)
 LIMIT = 0             # 0 = whole video, or a number to test on the first N frames
 SHOW_WINDOW = True    # live window; press q in it to stop
 SAVE_FRAMES = False   # True also saves one JPG per frame (large)
+SHOW_TTC = True       # find and follow objects and show their time-to-collision (red < 2 s, orange < 4 s)
+CLEAN_CAMERA = True   # top-left picture: plain camera (True) or with risk colours and far/mid/near region boxes (False)
 # ======================================================
 
 # Folder where this file lives (the project root).
@@ -42,6 +44,10 @@ def main():
         cmd.append("--show")
     if not SAVE_FRAMES:
         cmd.append("--no_frames")
+    if SHOW_TTC:
+        cmd.append("--ttc")
+    if CLEAN_CAMERA:
+        cmd.append("--clean_camera")
     # Run it from the project root so all relative paths work.
     subprocess.run(cmd, cwd=HERE, check=True)
 

@@ -22,3 +22,11 @@ demo_out/
 # Misc
 _to_delete/
 *.docx
+_backup_before_losses/
+
+# Hugging Face Space copy (contains the trained weights) and web-app files
+space/
+weights/
+.gradio/
+demo_out_nuscenes/
+*.tgz

@@ -1,0 +1,52 @@
+{
+ "args": {
+  "split": "test",
+  "final": "True",
+  "match_iou": "0.3",
+  "min_vis": "2",
+  "min_box_px": "8",
+  "max_gap": "0.7",
+  "seg_model": "C:\\Downloads\\All testings\\testing 3\\risk estimation for autonomous driving (Segformer+Unidepth)\\runs\\seg_b2_native\\best",
+  "depth_model": "C:\\Downloads\\All testings\\testing 3\\risk estimation for autonomous driving (Segformer+Unidepth)\\runs\\depth_s\\best.pt",
+  "seg_dir": "C:\\Downloads\\All testings\\testing 3\\risk estimation for autonomous driving (Segformer+Unidepth)\\seg_gt_native",
+  "images": "C:\\Downloads\\All testings\\testing 3\\risk estimation for autonomous driving (Segformer+Unidepth)\\dataset\\CAM_FRONT",
+  "meta_cache": "C:\\Downloads\\All testings\\testing 3\\risk estimation for autonomous driving (Segformer+Unidepth)\\depth_gt\\meta_cache.json"
+ },
+ "results": {
+  "automatic": {
+   "n": 3847,
+   "TTC found (approaching)": 0.17406440382941687,
+   "median TTC error (s)": 1.32101136046812,
+   "within 1 s": 0.07702349869451697,
+   "within 20%": 0.06527415143603134,
+   "AP (TTC<4s)": 0.3423743614981285,
+   "AUROC (TTC<4s)": 0.48030284665091344,
+   "precision (TTC<4s)": 0.6238532110091743,
+   "recall (TTC<4s)": 0.1095890410958904,
+   "seen": 0.500649857031453,
+   "false alarms among tracked TTC<4s": 0.13291139240506328
+  },
+  "automatic (same objects as box-based)": {
+   "n": 3598,
+   "TTC found (approaching)": 0.18190431075319755,
+   "median TTC error (s)": 1.3153521801255477,
+   "within 1 s": 0.08053055423969682,
+   "within 20%": 0.06821411653244908,
+   "AP (TTC<4s)": 0.34195863355422196,
+   "AUROC (TTC<4s)": 0.47974330372971546,
+   "precision (TTC<4s)": 0.6310679611650486,
+   "recall (TTC<4s)": 0.11265164644714037
+  },
+  "box-based (estimate_ttc.py)": {
+   "n": 3598,
+   "TTC found (approaching)": 0.8915206063477025,
+   "median TTC error (s)": 1.1640686245239156,
+   "within 1 s": 0.41260066319279964,
+   "within 20%": 0.3225959261013738,
+   "AP (TTC<4s)": 0.61774870041377,
+   "AUROC (TTC<4s)": 0.814820258008152,
+   "precision (TTC<4s)": 0.6772100567721006,
+   "recall (TTC<4s)": 0.7235701906412478
+  }
+ }
+}
