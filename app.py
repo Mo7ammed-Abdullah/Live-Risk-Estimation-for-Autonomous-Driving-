@@ -48,7 +48,11 @@ from ttc_tracker import TTCTracker  # noqa: E402
 ZERO_GPU = bool(os.environ.get("SPACES_ZERO_GPU"))
 
 
-def video_gpu_seconds(video=None, max_seconds=15, proc_fps=8, *args, **kwargs):
+# Tracker history chosen on nuScenes validation for ~12 frames per second (see code/replay_auto_ttc.py and the README).
+TTC_WINDOW = 0.8
+
+
+def video_gpu_seconds(video=None, max_seconds=15, proc_fps=12, *args, **kwargs):
     """GPU time to ask for: about 0.15 s per analysed frame plus start-up, at most 2 minutes."""
     try:
         frames = float(max_seconds) * float(proc_fps)
@@ -218,7 +222,7 @@ WAIT_VIDEO = sign("wait", "Waiting for a video", "Upload a short dashcam clip of
 def run_image(image):
     if image is None:
         raise gr.Error("No photo yet. Upload a photo taken from the driver's seat, then press Check risk.")
-    panel, info = analyse(image, TTCTracker(models()["names"]), 0.0)
+    panel, info = analyse(image, TTCTracker(models()["names"], window=TTC_WINDOW), 0.0)
     verdict = sign(info["level"].lower(), LEVEL_TEXT[info["level"]],
                    f"The most urgent area is {ZONE_TEXT.get(info['zone'], info['zone'])}.")
     verdict += stats([("Urgency", f"{info['urgency']:.2f}"), ("Objects", len(info["tracks"])),
@@ -240,7 +244,7 @@ def run_video(video, max_seconds, proc_fps, progress=gr.Progress()):
     last = int(min(total if total > 0 else 10 ** 9, float(max_seconds) * src_fps))
     n_out = max(1, (last + step - 1) // step)
     models()
-    tracker = TTCTracker(models()["names"])
+    tracker = TTCTracker(models()["names"], window=TTC_WINDOW)
     out_dir = Path(tempfile.mkdtemp(prefix="risk_"))
     out_mp4, out_csv = out_dir / "risk_ttc.mp4", out_dir / "ttc_per_object.csv"
     writer, rows, done, shortest, t_start = None, [], 0, None, time.time()
@@ -432,7 +436,8 @@ def build(max_seconds_default, max_seconds_limit, fps_default):
                             secs = gr.Slider(2, max_seconds_limit, value=max_seconds_default, step=1,
                                              label="Seconds of video to check")
                             fps = gr.Slider(1, 15, value=fps_default, step=1,
-                                            label="Frames checked per second (more = smoother, slower)")
+                                            label="Frames checked per second (more = smoother, slower)",
+                                            info="Time to collision is most reliable at 10 or more per second; the free CPU version uses 2.")
                         vid_btn = gr.Button("Check video", variant="primary", size="lg")
                     with gr.Column(scale=6):
                         vid_verdict = gr.HTML(WAIT_VIDEO)
@@ -456,9 +461,9 @@ def main():
     args, _ = ap.parse_known_args()
     if ZERO_GPU:
         models()                                      # ZeroGPU wants the models loaded on cuda before any request
-        demo = build(max_seconds_default=15, max_seconds_limit=30, fps_default=8)
+        demo = build(max_seconds_default=15, max_seconds_limit=30, fps_default=12)
     elif on_gpu():
-        demo = build(max_seconds_default=20, max_seconds_limit=120, fps_default=10)
+        demo = build(max_seconds_default=20, max_seconds_limit=120, fps_default=12)
     else:                                             # CPU: keep videos short and sparse (about a minute per request)
         demo = build(max_seconds_default=10, max_seconds_limit=20, fps_default=2)
     demo.queue(max_size=16, default_concurrency_limit=1)

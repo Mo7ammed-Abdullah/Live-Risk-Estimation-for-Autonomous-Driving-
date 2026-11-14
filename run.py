@@ -14,8 +14,8 @@ VIDEO_PATH = r"C:\Downloads\All testings\Testing 3\risk estimation for autonomou
 CROP_TOP = 0.0        # fraction to cut from the top, 0 to 0.5 (e.g. 0.1 = top 10%)
 CROP_BOTTOM = 0.0     # fraction to cut from the bottom (e.g. 0.2 = bottom 20%, hides your own dashboard/hood)
 RESIZE_HEIGHT = 320   # smaller = faster (320 gives ~14 FPS)
-EVERY = 6             # process 1 frame in N. 60 FPS video: 6 -> 10 frames per second (real speed)
-VIDEO_FPS = 10        # saved video speed = video FPS / EVERY (60 / 6 = 10)
+EVERY = 5             # process 1 frame in N. 60 FPS video: 5 -> 12 frames per second (best for time-to-collision)
+VIDEO_FPS = 12        # saved video speed = video FPS / EVERY (60 / 5 = 12)
 LIMIT = 0             # 0 = whole video, or a number to test on the first N frames
 SHOW_WINDOW = True    # live window; press q in it to stop
 SAVE_FRAMES = False   # True also saves one JPG per frame (large)

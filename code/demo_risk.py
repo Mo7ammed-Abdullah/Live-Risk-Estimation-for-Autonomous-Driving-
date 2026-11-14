@@ -315,7 +315,7 @@ def main():
     t_seg, t_depth, t_risk, t_all = ek.Timer(3), ek.Timer(3), ek.Timer(3), ek.Timer(3)
     rows, writer, warned = [], None, False
     # Time-to-collision: the tracker needs the real time of every frame.
-    tracker = TTCTracker(names) if args.ttc else None
+    tracker = TTCTracker(names, window=0.8) if args.ttc else None   # 0.8 s history: chosen on validation at ~12 fps
     track_rows, last_t = [], None
     src_fps = args.src_fps
     if args.ttc and not src_fps and Path(args.input).suffix.lower() in VIDEO_EXTS:

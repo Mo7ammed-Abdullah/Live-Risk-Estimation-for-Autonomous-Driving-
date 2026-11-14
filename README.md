@@ -69,7 +69,7 @@ Set `VIDEO_PATH` (and optionally `EVERY`, `CROP_BOTTOM`, `SHOW_WINDOW`) at the t
 
     python run.py
 
-Output: `demo_out/demo.mp4` and `demo_out/risk_per_frame.csv`. For a 60 FPS video use `EVERY = 6`, `VIDEO_FPS = 10`.
+Output: `demo_out/demo.mp4` and `demo_out/risk_per_frame.csv`. For a 60 FPS video use `EVERY = 5`, `VIDEO_FPS = 12` (12 frames per second gives the best time-to-collision).
 Videos from other cameras are a visual demo only (unknown camera, approximate depth).
 
 ## Reproduce
