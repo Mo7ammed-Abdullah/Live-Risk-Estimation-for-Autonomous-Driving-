@@ -1,0 +1,29 @@
+{
+ "val": {
+  "fixed formula": {
+   "AP (TTC<4s)": 0.6954490030227682,
+   "AUROC (TTC<4s)": 0.7484346419023498
+  },
+  "distance only": {
+   "AP (TTC<4s)": 0.7339218263390397,
+   "AUROC (TTC<4s)": 0.7928055086534402
+  },
+  "box-based TTC (ours)": {
+   "AP (TTC<4s)": 0.7245032435929888,
+   "AUROC (TTC<4s)": 0.7918414503306599
+  },
+  "learned, one frame": {
+   "AP (TTC<4s)": 0.7677660758291417,
+   "AUROC (TTC<4s)": 0.8216481110173068
+  },
+  "learned, two frames": {
+   "AP (TTC<4s)": 0.9221730402130359,
+   "AUROC (TTC<4s)": 0.9363347755733784
+  }
+ },
+ "test": {},
+ "chosen": {
+  "learned, one frame": "trees lr=0.03 leaves=15 l2=0.0",
+  "learned, two frames": "trees lr=0.1 leaves=15 l2=1.0"
+ }
+}

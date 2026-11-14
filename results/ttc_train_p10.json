@@ -1,0 +1,70 @@
+{
+ "args": {
+  "split": "train",
+  "final": "False",
+  "eval_only": "False",
+  "percentile": "10",
+  "min_closing": "0.5",
+  "max_gap": "0.7",
+  "min_vis": "2",
+  "min_box_px": "8",
+  "seg_model": "C:\\Downloads\\All testings\\testing 3\\risk estimation for autonomous driving (Segformer+Unidepth)\\runs\\seg_b2_native\\best",
+  "depth_model": "C:\\Downloads\\All testings\\testing 3\\risk estimation for autonomous driving (Segformer+Unidepth)\\runs\\depth_s\\best.pt",
+  "seg_dir": "C:\\Downloads\\All testings\\testing 3\\risk estimation for autonomous driving (Segformer+Unidepth)\\seg_gt_native",
+  "images": "C:\\Downloads\\All testings\\testing 3\\risk estimation for autonomous driving (Segformer+Unidepth)\\dataset\\CAM_FRONT",
+  "meta_cache": "C:\\Downloads\\All testings\\testing 3\\risk estimation for autonomous driving (Segformer+Unidepth)\\depth_gt\\meta_cache.json"
+ },
+ "results": {
+  "depth": {
+   "objects": 8563,
+   "approaching_ttc<=10s": 5626,
+   "TTC found (approaching)": 0.8247422680412371,
+   "median TTC error (s)": 1.0777058417058114,
+   "within 1 s": 0.3995734091717028,
+   "within 20%": 0.30856736580163524,
+   "AP (TTC<4s)": 0.6255004283267929,
+   "AUROC (TTC<4s)": 0.7971061482364092,
+   "precision (TTC<4s)": 0.6666666666666666,
+   "recall (TTC<4s)": 0.7066085693536674,
+   "closing speed MAE (m/s)": 5.500375242914615,
+   "closing speed median err (m/s)": 2.2589434904588384
+  },
+  "scale": {
+   "objects": 8563,
+   "approaching_ttc<=10s": 5626,
+   "TTC found (approaching)": 0.7324920014219695,
+   "median TTC error (s)": 1.2087650797719043,
+   "within 1 s": 0.3354070387486669,
+   "within 20%": 0.27337362246711694,
+   "AP (TTC<4s)": 0.48885598133744895,
+   "AUROC (TTC<4s)": 0.6759832456410451,
+   "precision (TTC<4s)": 0.5890815197344154,
+   "recall (TTC<4s)": 0.5798838053740014,
+   "closing speed MAE (m/s)": 9.287376880397368,
+   "closing speed median err (m/s)": 2.7338238058032793
+  },
+  "combined": {
+   "objects": 8563,
+   "approaching_ttc<=10s": 5626,
+   "TTC found (approaching)": 0.9104159260575898,
+   "median TTC error (s)": 1.1953430391501185,
+   "within 1 s": 0.41468183434056166,
+   "within 20%": 0.3457163170991824,
+   "AP (TTC<4s)": 0.5725245240896776,
+   "AUROC (TTC<4s)": 0.777650324234563,
+   "precision (TTC<4s)": 0.6230719794344473,
+   "recall (TTC<4s)": 0.7040668119099491
+  },
+  "fixed formula": {
+   "objects": 8563,
+   "AP (TTC<4s)": 0.5422271579980755,
+   "AUROC (TTC<4s)": 0.7553789895803135
+  },
+  "distance only": {
+   "objects": 8563,
+   "AP (TTC<4s)": 0.5947399828171605,
+   "AUROC (TTC<4s)": 0.7933589578088142
+  },
+  "_danger_objects": 2754
+ }
+}
